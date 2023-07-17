@@ -36,6 +36,7 @@ function Home() {
          <span>Gerencie sua agenda de forma fácil</span>
          <form className='form'>
           <input 
+            autoComplete='false'
             type="text" 
             placeholder='Digite seu email...' 
             value={email}
