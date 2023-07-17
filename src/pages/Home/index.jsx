@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { auth } from '../../FirebaseConnection';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 import './home.css';
 
 function Home() {
@@ -7,11 +10,20 @@ function Home() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  function handleLogin(e){
+  const navigate = useNavigate();
+
+  async function handleLogin(e){
     e.preventDefault();
 
     if(email !== '' && password !== ''){
-      alert('teste');
+      await signInWithEmailAndPassword(auth, email, password)
+            .then((promisse) => {
+              navigate('/admin', { //Passando options para o useNavigate
+                replace:true //Replace no histórico de navegação
+              })
+            }).catch((error) => {
+
+            });
     } else {
       alert('Preencha todos os campos');
     }
