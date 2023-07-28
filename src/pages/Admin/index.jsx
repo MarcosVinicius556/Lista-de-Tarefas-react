@@ -10,7 +10,8 @@ import {
   query,
   where,
   doc,
-  deleteDoc
+  deleteDoc,
+  updateDoc
 } from 'firebase/firestore';
 import './admin.css';
 
@@ -20,6 +21,7 @@ function Admin() {
   const [user, setUser] = useState({});
 
   const [tarefas, setTarefas] = useState([]);
+  const [edit, setEdit] = useState({});
 
   useEffect(() => {
     async function loadTarefas(){
@@ -66,6 +68,11 @@ function Admin() {
       return;
     }
 
+    if(edit?.id) { //Se for um update, chama outra função
+      handleUpdateTarefa();
+      return;
+    }
+
     await addDoc(collection(db, "tarefas"), {
       tarefa: tarefaInput,
       created: new Date(),
@@ -90,6 +97,26 @@ function Admin() {
     await deleteDoc(docRef);
   }
 
+  async function editTarefa(item) {
+    setTarefaInput(item.tarefa)
+    setEdit(item);
+  }
+
+  async function handleUpdateTarefa() {
+    const docRef = doc(db, 'tarefas', edit.id); //Tarefa para atualizar
+    await updateDoc(docRef, {
+      tarefa: tarefaInput
+    })
+    .then(() => {
+      console.log('Atualizado com sucesso!');
+      setTarefaInput('');
+      setEdit({});
+    })
+    .catch((error) => {
+      console.log(error)
+    });
+  }
+
   return (
     <div className='admin-container'>
         <h1>Minhas tarefas</h1>
@@ -100,7 +127,9 @@ function Admin() {
               value={tarefaInput}
               onChange={e => setTarefaInput(e.target.value)}/>
 
-              <button type='submit' className='btn-register'>Registrar Tarefa</button>
+              {Object.keys(edit).length > 0 
+                ? ( <button type='submit' style={{ background: '#6add39' }} className='btn-register'>Atualizar Tarefa</button> )
+                : ( <button type='submit' className='btn-register'>Registrar Tarefa</button> )}
         </form>
 
         {
@@ -108,7 +137,7 @@ function Admin() {
             <article className='list' key={item.id}>
               <p>{item.tarefa}</p>
               <div>
-                <button>Editar</button>
+                <button onClick={() => editTarefa(item)}>Editar</button>
                 <button className='btn-delete' onClick={() => deleteTarefa(item.id)}>Concluir</button>
               </div>
             </article>
