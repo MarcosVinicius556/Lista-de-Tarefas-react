@@ -8,7 +8,9 @@ import {
   onSnapshot,
   orderBy,
   query,
-  where
+  where,
+  doc,
+  deleteDoc
 } from 'firebase/firestore';
 import './admin.css';
 
@@ -82,6 +84,11 @@ function Admin() {
   async function handleLogout() {
     await signOut(auth);
   }
+  
+  async function deleteTarefa(id) {
+    const docRef = doc(db, 'tarefas', id); //Criando referência para o documento no banco
+    await deleteDoc(docRef);
+  }
 
   return (
     <div className='admin-container'>
@@ -96,13 +103,17 @@ function Admin() {
               <button type='submit' className='btn-register'>Registrar Tarefa</button>
         </form>
 
-        <article className='list'>
-          <p>Estudar JavaScript e React</p>
-          <div>
-            <button>Editar</button>
-            <button className='btn-delete'>Concluir</button>
-          </div>
-        </article>
+        {
+          tarefas.map((item) => (
+            <article className='list' key={item.id}>
+              <p>{item.tarefa}</p>
+              <div>
+                <button>Editar</button>
+                <button className='btn-delete' onClick={() => deleteTarefa(item.id)}>Concluir</button>
+              </div>
+            </article>
+          ))
+        }
 
         <button className='btn-logout' onClick={handleLogout}>Sair</button>
     </div>
